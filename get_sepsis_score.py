@@ -41,12 +41,16 @@ def get_sepsis_score(data):
     rho = 14
     nu = 0.5
 
-    xstar = np.concatenate((x_norm, c_norm), axis=1)
-    exp_bx = np.exp(np.matmul(xstar, beta))
-    l_exp_bx = pow(4 / rho, nu) * exp_bx
-
-    scores = 1 - np.exp(-l_exp_bx)
-    labels = (scores > 0.45)
+    from keras.models import load_model
+    model = load_model('my_model.h5')
+    
+    Xtest = data.iloc[:,[0,1,3,4,6,34,35,38]]
+    mean = np.array([83.8051,97.1538,123.321,82.5631,18.538,61.6434,0.55945])
+    sd = np.array([14.6318,2.0955,17.83,12.5797,3.40572,16.4827,0.4965])
+    Xtest = (Xtest - mean)/sd
+        
+    scores = model.predict(Xtest)
+    labels = (scores > 0.50)
     return (scores, labels)
 
 def read_challenge_data(input_file):
